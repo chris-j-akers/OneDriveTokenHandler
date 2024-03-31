@@ -20,7 +20,7 @@ from OneDriveTokenHandler import OneDriveTokenHandler
 
 token_handler = OneDriveTokenHandler(app_name='my-application', 
                                      client_id='12345678-abcd-1234-abcd-12345678', 
-                                     scopes=['FilesReadWriteAll', 'offline_access'], 
+                                     scopes=['Files.ReadWrite.All', 'offline_access'], 
                                      db_filepath=os.path.expanduser('~/.local/share/my-application/settings_db')
 new_token = token_handler.get_token()
 ```
