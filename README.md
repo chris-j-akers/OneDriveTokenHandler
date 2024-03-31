@@ -1,6 +1,6 @@
 ## Overview
 
-`OneDriveTokenHandler` is a class that will manage and store tokens for Python scripts that need regular access to consumer OneDrives. It will cache refresh tokens in a database and use them to retrieve subsequent access tokens, avoiding the need to re-authenticate with Microsoft each time.
+`OneDriveTokenHandler` is a class that will manage and store tokens for Python scripts that need regular access to consumer OneDrives. It will cache refresh tokens in a Sqlite3 database and use them to retrieve subsequent access tokens, avoiding the need to re-authenticate with Microsoft each time.
 
 It's main function, `get_token()`, will return a valid access token that can be used in Microsoft Graph API calls to consumer OneDrives.
 
@@ -8,7 +8,7 @@ In order for this to work your application must be [registered with Microsoft](h
 
 ## First time Usage
 
-The first time you call `get_token()` a browser will open and present the Office 365 login screen. Please logon as usual and accept the permissions of the application. Subsequent calls should not need to re-authenticate, they should use the refresh token stored in the database.
+The first time you call `get_token()` a browser will open and present the Office 365 login screen. Users should logon as usual and accept the permissions of the application. Subsequent calls should not need to re-authenticate, they should use the refresh token stored in the database.
 
 If the refresh token expires (currently 90-days without usage) or is deleted then authentication will be required again.
 
