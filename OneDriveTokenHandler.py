@@ -198,8 +198,11 @@ class OneDriveTokenHandler:
         """
         Will open a web-browser at the standard MSFT login page where the user 
         logs in to their MSFT account and accepts the scopes of this
-        application (the scopes are passed on creation of the OneDriveTokenHandler
-        object).
+        application. An authorisation code is then redeemed for a token.
+
+        Returns:
+            `boolean` : Whether or not a token was retrieved
+
         """
         http_server = self.TinyAcceptorHTTPServer(port=0)
         state = str(uuid.uuid4())
@@ -218,8 +221,7 @@ class OneDriveTokenHandler:
         webbrowser.open(url)
         self._logger.debug(f'starting TinyAcceptorHTTPServer on port [{http_server.get_port()}]')
         http_server.wait_for_authorisation_code(timeout=300)
-        auth_code = http_server.get_auth_code()
-        if auth_code == '':
+        if (auth_code := http_server.get_auth_code()) == '':
             self._logger.debug(f'no authorization code received from MSFT.')
             return False
         self._logger.debug(f'authorisation code [{auth_code}] received.')
@@ -231,8 +233,7 @@ class OneDriveTokenHandler:
                  }
         self._logger.debug(f'requesting token from [{self.ONEDRIVE_TOKEN_SERVER_URL}]')
         response = requests.post(self.ONEDRIVE_TOKEN_SERVER_URL, headers={'Content-Type': 'application/x-www-form-urlencoded'}, data=urllib.parse.urlencode(params))       
-        json = response.json()
-        if 'error' in json:
+        if 'error' in (json := response.json()):
             print(f'unable to get token, error from get_token_interactive():  {json["error"]} | {json["error_description"]}')
             return False
         self._persist_token_data(json)
@@ -260,8 +261,7 @@ class OneDriveTokenHandler:
         params = urllib.parse.urlencode(params)
         self._logger.debug(f'with params: [{params}]')
         response = requests.post(self.ONEDRIVE_TOKEN_SERVER_URL, headers={'Content-Type': 'application/x-www-form-urlencoded'}, data=params)       
-        json = response.json()
-        if 'error' in json:
+        if 'error' in (json := response.json()):
             print(f'unable to get token, error from get_token_refresh():  {json["error"]} | {json["error_description"]}')
             return False
         self._persist_token_data(json)
@@ -281,8 +281,7 @@ class OneDriveTokenHandler:
             self._logger.debug('found token in cache, returning.')
             return self._current_token
         self._logger.debug('no valid cached token, checking for refresh token')       
-        refresh_token = self._get_refresh_token_from_db()
-        if refresh_token != '':
+        if (refresh_token := self._get_refresh_token_from_db()) != '':
             self._logger.debug(f"got refresh token [{refresh_token}] from database")
             if self.get_token_refresh(refresh_token):
                 return self._current_token
